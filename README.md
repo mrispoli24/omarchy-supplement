@@ -17,12 +17,33 @@ This repository provides automated installation scripts for:
 - **GNU Stow** - Dotfiles symlink manager
 - **Personal dotfiles** - Your configurations from [mrispoli24/dotfiles](https://github.com/mrispoli24/dotfiles)
 
+## Prerequisites
+
+Before running this installer, you **must** have your SSH keys set up for GitHub:
+
+1. Generate SSH keys (if not already done):
+```bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+```
+
+2. Add your SSH key to GitHub:
+```bash
+cat ~/.ssh/id_ed25519.pub
+# Copy the output and add it to GitHub Settings > SSH Keys
+```
+
+3. Test your SSH connection:
+```bash
+ssh -T git@github.com
+# Should see: "Hi username! You've successfully authenticated..."
+```
+
 ## Quick Start
 
 ### One Command Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/omarchy-supplement.git
+git clone git@github.com:mrispoli24/omarchy-supplement.git
 cd omarchy-supplement
 chmod +x *.sh
 ./install-all.sh
@@ -63,7 +84,7 @@ chmod +x *.sh
 # Start tmux
 tmux
 
-# Press: Ctrl+b then Shift+i
+# Press: Ctrl+s then Shift+i (Note: prefix is Ctrl+s, not Ctrl+b)
 # TPM will install all plugins defined in your tmux.conf
 ```
 
@@ -187,11 +208,13 @@ mv ~/.config/nvim ~/.config/nvim.backup
 ./install-dotfiles.sh
 ```
 
-### Git Clone Fails (SSH)
-If using SSH keys that aren't set up yet, the installer uses HTTPS. After setup, you can switch to SSH:
+### Git Authentication Issues
+The installer uses SSH URLs. If you haven't set up SSH keys yet, see the Prerequisites section above.
+If you need to verify your remote URL:
 ```bash
 cd ~/dotfiles
-git remote set-url origin git@github.com:mrispoli24/dotfiles.git
+git remote -v
+# Should show: git@github.com:mrispoli24/dotfiles.git
 ```
 
 ### Hyprland Keybindings Not Working
@@ -202,10 +225,11 @@ hyprctl reload
 
 ### Tmux Plugins Not Loading
 ```bash
-# Make sure TPM is installed
-ls ~/.config/tmux/plugins/tpm
+# Make sure TPM is installed at the correct location
+ls ~/.tmux/plugins/tpm
 
-# Install plugins: Ctrl+b then Shift+i
+# Install plugins: Ctrl+s then Shift+i (Note: prefix is Ctrl+s)
+# Or reload config first: tmux source-file ~/.config/tmux/tmux.conf
 ```
 
 ## Updating Dotfiles

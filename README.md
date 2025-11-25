@@ -12,6 +12,8 @@ This repository provides automated installation scripts for:
 - **lazygit** - Git TUI
 - **Waybar** - Status bar
 - **Starship** - Cross-shell prompt
+- **Slack Desktop** - Team communication
+- **Simple Scan** - Scanner utility
 - **GNU Stow** - Dotfiles symlink manager
 - **Personal dotfiles** - Your configurations from [mrispoli24/dotfiles](https://github.com/mrispoli24/dotfiles)
 
@@ -47,6 +49,8 @@ chmod +x *.sh
 ./install-lazygit.sh
 ./install-waybar.sh
 ./install-starship.sh
+./install-slack.sh
+./install-simple-scan.sh
 ./install-stow.sh
 ./install-dotfiles.sh
 ```
@@ -150,6 +154,8 @@ omarchy-supplement/
 ├── install-lazygit.sh       # Install lazygit TUI
 ├── install-waybar.sh        # Install Waybar status bar
 ├── install-starship.sh      # Install Starship prompt
+├── install-slack.sh         # Install Slack Desktop
+├── install-simple-scan.sh   # Install Simple Scan
 ├── install-stow.sh          # Install GNU Stow
 └── install-dotfiles.sh      # Clone and stow dotfiles
 ```

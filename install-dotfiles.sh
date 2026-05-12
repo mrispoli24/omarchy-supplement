@@ -28,39 +28,40 @@ else
     git pull || echo "  (Could not pull, continuing anyway)"
 fi
 
-# Remove non-symlink files that would conflict with stow
-# (symlinks to dotfiles repo are fine, regular files need to be removed)
-remove_if_not_symlink() {
+# Move non-symlink files that would conflict with stow.
+# Symlinks to the dotfiles repo are fine; regular files are backed up.
+backup_if_not_symlink() {
     local target="$1"
     if [ -e "$target" ] && [ ! -L "$target" ]; then
-        echo "  Removing conflicting file: $target"
-        rm -rf "$target"
+        local backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+        echo "  Backing up conflicting path: $target -> $backup"
+        mv "$target" "$backup"
     fi
 }
 
 echo "Checking for conflicting configs..."
-remove_if_not_symlink ~/.bashrc
-remove_if_not_symlink ~/.bashrc.backup
-remove_if_not_symlink ~/.config/nvim
-remove_if_not_symlink ~/.config/tmux
-remove_if_not_symlink ~/.config/git
-remove_if_not_symlink ~/.config/starship.toml
-remove_if_not_symlink ~/.config/ghostty
-remove_if_not_symlink ~/.config/lazygit
-remove_if_not_symlink ~/.config/btop
-remove_if_not_symlink ~/.config/waybar
+backup_if_not_symlink ~/.bashrc
+backup_if_not_symlink ~/.bashrc.backup
+backup_if_not_symlink ~/.config/nvim
+backup_if_not_symlink ~/.config/tmux
+backup_if_not_symlink ~/.config/git
+backup_if_not_symlink ~/.config/starship.toml
+backup_if_not_symlink ~/.config/ghostty
+backup_if_not_symlink ~/.config/lazygit
+backup_if_not_symlink ~/.config/btop
+backup_if_not_symlink ~/.config/waybar
 # Selectively check only hypr files that should be stowed (not machine-specific ones)
-remove_if_not_symlink ~/.config/hypr/bindings.conf
-remove_if_not_symlink ~/.config/hypr/hyprland.conf
-remove_if_not_symlink ~/.config/hypr/input.conf
-remove_if_not_symlink ~/.config/hypr/looknfeel.conf
+backup_if_not_symlink ~/.config/hypr/bindings.conf
+backup_if_not_symlink ~/.config/hypr/hyprland.conf
+backup_if_not_symlink ~/.config/hypr/input.conf
+backup_if_not_symlink ~/.config/hypr/looknfeel.conf
 
 # Stow all packages
 echo "Stowing dotfiles..."
 cd "$REPO_DIR"
 
 # List of packages to stow
-PACKAGES="bash nvim tmux git starship ghostty lazygit btop waybar hypr"
+PACKAGES="bash nvim tmux git starship ghostty lazygit btop waybar hypr bin"
 
 for package in $PACKAGES; do
     if [ -d "$package" ]; then
@@ -72,6 +73,26 @@ for package in $PACKAGES; do
 done
 
 echo "✓ Dotfiles stowed successfully"
+
+# Run the audit after Omarchy updates when no custom post-update hook exists.
+HOOK_DIR="$HOME/.config/omarchy/hooks"
+HOOK_PATH="$HOOK_DIR/post-update"
+mkdir -p "$HOOK_DIR"
+
+if [ ! -e "$HOOK_PATH" ]; then
+    echo "Installing Omarchy post-update dotfiles audit hook..."
+    ln -s "$HOME/.local/bin/omarchy-dotfiles-audit" "$HOOK_PATH"
+elif [ -L "$HOOK_PATH" ]; then
+    echo "✓ Omarchy post-update hook already exists as a symlink"
+else
+    echo "  Omarchy post-update hook already exists; leaving it unchanged"
+    echo "  To add the audit manually, run: omarchy-dotfiles-audit"
+fi
+
+if command -v omarchy-dotfiles-audit &>/dev/null; then
+    echo "Running dotfiles audit..."
+    omarchy-dotfiles-audit || echo "  Audit reported warnings or failures; review output above"
+fi
 
 # Reload Hyprland to pick up config changes
 if command -v hyprctl &>/dev/null; then

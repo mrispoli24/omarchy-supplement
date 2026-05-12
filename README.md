@@ -53,7 +53,8 @@ This will:
 1. Install all required packages
 2. Clone your dotfiles repository
 3. Create symlinks using GNU Stow
-4. Set up tmux plugin manager
+4. Install a post-update dotfiles audit hook for Omarchy
+5. Set up tmux plugin manager
 
 ### Individual Script Installation
 
@@ -135,6 +136,7 @@ source ~/.bashrc
 - Btop themes
 - Waybar config
 - Hyprland keybindings, input, looknfeel
+- Personal helper scripts in `~/.local/bin`
 
 ### Machine-Specific (Not Synced)
 - Monitor configurations (`monitors.conf`)
@@ -143,6 +145,26 @@ source ~/.bashrc
 - Environment variables (`envs.conf`)
 - Blue light filter settings (`hyprsunset.conf`)
 - Plugin installations (auto-installed via TPM and lazy.nvim)
+
+## Omarchy Update Maintenance
+
+Omarchy can rename helper binaries, split config files, or change default
+templates during updates. Your dotfiles intentionally keep shared behavior in
+git, so run the audit after updates or when a keybinding/module stops working:
+
+```bash
+omarchy-dotfiles-audit
+```
+
+The installer also links this audit as `~/.config/omarchy/hooks/post-update`
+when no custom post-update hook already exists.
+
+The audit checks:
+- GNU Stow conflicts across dotfile packages
+- stale direct `omarchy-*` binary references in Hyprland and Waybar configs
+- expected stable `omarchy <group> <action>` dispatcher routes
+- missing Hyprland sourced files
+- drift between tracked Omarchy-derived files and current Omarchy templates
 
 ## Optional: Install Language Runtimes
 
@@ -201,12 +223,18 @@ chmod +x *.sh
 ### Stow Conflicts
 If stow reports conflicts:
 ```bash
-# Backup existing config
-mv ~/.config/nvim ~/.config/nvim.backup
-
-# Re-run install-dotfiles.sh
+# Re-run install-dotfiles.sh; it backs up conflicting paths automatically
 ./install-dotfiles.sh
 ```
+
+### Omarchy Update Drift
+After `omarchy update`, run:
+```bash
+omarchy-dotfiles-audit
+```
+
+If it reports template drift, compare the diff and decide whether to pull the
+new Omarchy default into your dotfiles or keep your local customization.
 
 ### Git Authentication Issues
 The installer uses SSH URLs. If you haven't set up SSH keys yet, see the Prerequisites section above.
